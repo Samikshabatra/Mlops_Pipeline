@@ -1,0 +1,692 @@
+# PIPELINE DEFINITION
+# Name: ai4i-predictive-maintenance
+# Description: Collect, validate, train x3 in parallel, evaluate, gated deployment
+# Inputs:
+#    f1_threshold: float [Default: 0.7]
+#    seed: int [Default: 42.0]
+#    source_url: str [Default: 'https://archive.ics.uci.edu/static/public/601/ai4i+2020+predictive+maintenance+dataset.zip']
+components:
+  comp-condition-1:
+    dag:
+      tasks:
+        deployment:
+          cachingOptions:
+            enableCache: true
+          componentRef:
+            name: comp-deployment
+          inputs:
+            artifacts:
+              best_model:
+                componentInputArtifact: pipelinechannel--evaluate-models-best_model
+            parameters:
+              best_model_type:
+                componentInputParameter: pipelinechannel--evaluate-models-best_model_type
+              f1:
+                componentInputParameter: pipelinechannel--evaluate-models-best_f1
+              f1_threshold:
+                componentInputParameter: pipelinechannel--f1_threshold
+          taskInfo:
+            name: deployment
+    inputDefinitions:
+      artifacts:
+        pipelinechannel--evaluate-models-best_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+      parameters:
+        pipelinechannel--evaluate-models-best_f1:
+          parameterType: NUMBER_DOUBLE
+        pipelinechannel--evaluate-models-best_model_type:
+          parameterType: STRING
+        pipelinechannel--f1_threshold:
+          parameterType: NUMBER_DOUBLE
+  comp-data-collection:
+    executorLabel: exec-data-collection
+    inputDefinitions:
+      parameters:
+        source_url:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        raw_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+  comp-data-validation:
+    executorLabel: exec-data-validation
+    inputDefinitions:
+      artifacts:
+        raw_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+    outputDefinitions:
+      artifacts:
+        clean_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        report:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+  comp-deployment:
+    executorLabel: exec-deployment
+    inputDefinitions:
+      artifacts:
+        best_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+      parameters:
+        best_model_type:
+          parameterType: STRING
+        f1:
+          parameterType: NUMBER_DOUBLE
+        f1_threshold:
+          parameterType: NUMBER_DOUBLE
+    outputDefinitions:
+      artifacts:
+        packaged_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+      parameters:
+        Output:
+          parameterType: STRING
+  comp-evaluate-models:
+    executorLabel: exec-evaluate-models
+    inputDefinitions:
+      artifacts:
+        clean_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+        gb_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+        lr_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+        rf_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+      parameters:
+        seed:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      artifacts:
+        best_model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+        metrics:
+          artifactType:
+            schemaTitle: system.Metrics
+            schemaVersion: 0.0.1
+      parameters:
+        best_f1:
+          parameterType: NUMBER_DOUBLE
+        best_model_type:
+          parameterType: STRING
+  comp-train-model:
+    executorLabel: exec-train-model
+    inputDefinitions:
+      artifacts:
+        clean_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+      parameters:
+        model_type:
+          parameterType: STRING
+        seed:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      artifacts:
+        model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+  comp-train-model-2:
+    executorLabel: exec-train-model-2
+    inputDefinitions:
+      artifacts:
+        clean_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+      parameters:
+        model_type:
+          parameterType: STRING
+        seed:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      artifacts:
+        model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+  comp-train-model-3:
+    executorLabel: exec-train-model-3
+    inputDefinitions:
+      artifacts:
+        clean_data:
+          artifactType:
+            schemaTitle: system.Dataset
+            schemaVersion: 0.0.1
+      parameters:
+        model_type:
+          parameterType: STRING
+        seed:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      artifacts:
+        model:
+          artifactType:
+            schemaTitle: system.Model
+            schemaVersion: 0.0.1
+deploymentSpec:
+  executors:
+    exec-data-collection:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - data_collection
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.3.3'\
+          \ 'scikit-learn==1.5.2' 'joblib'  &&  python3 -m pip install --quiet --no-warn-script-location\
+          \ 'kfp==2.16.1' '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"\
+          3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef data_collection(source_url: str, raw_data: Output[Dataset]):\n\
+          \    import io\n    import urllib.request\n    import zipfile\n    import\
+          \ pandas as pd\n    archive = zipfile.ZipFile(io.BytesIO(urllib.request.urlopen(source_url).read()))\n\
+          \    df = pd.read_csv(archive.open(\"ai4i2020.csv\"))\n    df.to_csv(raw_data.path,\
+          \ index=False)\n    raw_data.metadata.update({\"rows\": len(df), \"columns\"\
+          : df.shape[1]})\n    print(f\"Collected {len(df)} rows and {df.shape[1]}\
+          \ columns\")\n\n"
+        image: python:3.11-slim
+    exec-data-validation:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - data_validation
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.3.3'\
+          \ 'scikit-learn==1.5.2' 'joblib'  &&  python3 -m pip install --quiet --no-warn-script-location\
+          \ 'kfp==2.16.1' '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"\
+          3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef data_validation(raw_data: Input[Dataset], clean_data: Output[Dataset],\
+          \ report: Output[Metrics]):\n    import numpy as np\n    import pandas as\
+          \ pd\n    df = pd.read_csv(raw_data.path)\n    modes = [\"TWF\", \"HDF\"\
+          , \"PWF\", \"OSF\", \"RNF\"]\n    checks = {\n        \"enough_rows\": len(df)\
+          \ >= 5000,\n        \"no_missing_values\": df.isna().sum().sum() == 0,\n\
+          \        \"unique_ids\": df[\"UDI\"].is_unique,\n        \"binary_target\"\
+          : set(df[\"Machine failure\"]) <= {0, 1},\n        \"valid_product_types\"\
+          : set(df[\"Type\"]) <= {\"L\", \"M\", \"H\"},\n        \"positive_speed\"\
+          : (df[\"Rotational speed [rpm]\"] > 0).all(),\n    }\n    for name, passed\
+          \ in checks.items():\n        report.log_metric(name, float(passed))\n \
+          \   if not all(checks.values()):\n        raise ValueError(f\"Data validation\
+          \ failed: {checks}\")\n    consistent = (df[\"Machine failure\"] == 1) ==\
+          \ (df[modes].sum(axis=1) > 0)\n    df = df[consistent].drop(columns=[\"\
+          UDI\", \"Product ID\"] + modes)\n    df[\"temp_diff_k\"] = df[\"Process\
+          \ temperature [K]\"] - df[\"Air temperature [K]\"]\n    df[\"power_w\"]\
+          \ = df[\"Torque [Nm]\"] * df[\"Rotational speed [rpm]\"] * 2 * np.pi / 60\n\
+          \    df[\"strain_min_nm\"] = df[\"Tool wear [min]\"] * df[\"Torque [Nm]\"\
+          ]\n    df = pd.get_dummies(df, columns=[\"Type\"], dtype=int)\n    df.to_csv(clean_data.path,\
+          \ index=False)\n    clean_data.metadata.update({\"rows\": len(df), \"contradictory_rows_removed\"\
+          : int((~consistent).sum())})\n    print(f\"All {len(checks)} checks passed,\
+          \ removed {(~consistent).sum()} contradictory rows\")\n\n"
+        image: python:3.11-slim
+    exec-deployment:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - deployment
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.3.3'\
+          \ 'scikit-learn==1.5.2' 'joblib'  &&  python3 -m pip install --quiet --no-warn-script-location\
+          \ 'kfp==2.16.1' '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"\
+          3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef deployment(best_model: Input[Model], best_model_type: str, f1:\
+          \ float, f1_threshold: float,\n               packaged_model: Output[Model])\
+          \ -> str:\n    import shutil\n    if f1 < f1_threshold:\n        print(f\"\
+          Quality gate failed: F1 {f1:.4f} < {f1_threshold}\")\n        return \"\
+          REJECTED\"\n    shutil.copy(best_model.path, packaged_model.path)\n    packaged_model.metadata.update({\"\
+          model_name\": \"ai4i-failure-classifier\", \"model_type\": best_model_type,\n\
+          \                                    \"f1_score\": round(f1, 4), \"status\"\
+          : \"READY_FOR_SERVING\"})\n    print(f\"Quality gate passed (F1 {f1:.4f}\
+          \ >= {f1_threshold}): {best_model_type} packaged for serving\")\n    return\
+          \ \"READY_FOR_SERVING\"\n\n"
+        image: python:3.11-slim
+    exec-evaluate-models:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - evaluate_models
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.3.3'\
+          \ 'scikit-learn==1.5.2' 'joblib'  &&  python3 -m pip install --quiet --no-warn-script-location\
+          \ 'kfp==2.16.1' '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"\
+          3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef evaluate_models(clean_data: Input[Dataset], lr_model: Input[Model],\
+          \ rf_model: Input[Model],\n                    gb_model: Input[Model], seed:\
+          \ int, best_model: Output[Model],\n                    metrics: Output[Metrics])\
+          \ -> NamedTuple(\"EvalOutputs\", [(\"best_model_type\", str), (\"best_f1\"\
+          , float)]):\n    import shutil\n    from collections import namedtuple\n\
+          \    import joblib\n    import pandas as pd\n    from sklearn.metrics import\
+          \ f1_score, precision_score, recall_score\n    from sklearn.model_selection\
+          \ import train_test_split\n    df = pd.read_csv(clean_data.path)\n    X,\
+          \ y = df.drop(columns=[\"Machine failure\"]), df[\"Machine failure\"]\n\
+          \    _, X_test, _, y_test = train_test_split(X, y, test_size=0.2, stratify=y,\
+          \ random_state=seed)\n    candidates = {\"logistic_regression\": lr_model,\
+          \ \"random_forest\": rf_model, \"gradient_boosting\": gb_model}\n    f1_scores\
+          \ = {}\n    for name, artifact in candidates.items():\n        y_pred =\
+          \ joblib.load(artifact.path).predict(X_test)\n        f1_scores[name] =\
+          \ float(f1_score(y_test, y_pred))\n        metrics.log_metric(f\"{name}_precision\"\
+          , round(float(precision_score(y_test, y_pred)), 4))\n        metrics.log_metric(f\"\
+          {name}_recall\", round(float(recall_score(y_test, y_pred)), 4))\n      \
+          \  metrics.log_metric(f\"{name}_f1\", round(f1_scores[name], 4))\n    best\
+          \ = max(f1_scores, key=f1_scores.get)\n    shutil.copy(candidates[best].path,\
+          \ best_model.path)\n    best_model.metadata.update({\"model_type\": best,\
+          \ \"f1_score\": round(f1_scores[best], 4)})\n    print(f\"Best model: {best}\
+          \ with F1 = {f1_scores[best]:.4f}\")\n    return namedtuple(\"EvalOutputs\"\
+          , [\"best_model_type\", \"best_f1\"])(best, f1_scores[best])\n\n"
+        image: python:3.11-slim
+    exec-train-model:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.3.3'\
+          \ 'scikit-learn==1.5.2' 'joblib'  &&  python3 -m pip install --quiet --no-warn-script-location\
+          \ 'kfp==2.16.1' '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"\
+          3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_model(clean_data: Input[Dataset], model_type: str, seed:\
+          \ int, model: Output[Model]):\n    import joblib\n    import pandas as pd\n\
+          \    from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier\n\
+          \    from sklearn.linear_model import LogisticRegression\n    from sklearn.model_selection\
+          \ import train_test_split\n    from sklearn.pipeline import make_pipeline\n\
+          \    from sklearn.preprocessing import StandardScaler\n    df = pd.read_csv(clean_data.path)\n\
+          \    X, y = df.drop(columns=[\"Machine failure\"]), df[\"Machine failure\"\
+          ]\n    X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, stratify=y,\
+          \ random_state=seed)\n    estimators = {\n        \"logistic_regression\"\
+          : LogisticRegression(max_iter=1000, class_weight=\"balanced\", random_state=seed),\n\
+          \        \"random_forest\": RandomForestClassifier(n_estimators=300, class_weight=\"\
+          balanced_subsample\", random_state=seed),\n        \"gradient_boosting\"\
+          : HistGradientBoostingClassifier(max_iter=300, class_weight=\"balanced\"\
+          , random_state=seed),\n    }\n    pipeline = make_pipeline(StandardScaler(),\
+          \ estimators[model_type]).fit(X_train, y_train)\n    joblib.dump(pipeline,\
+          \ model.path)\n    model.metadata[\"model_type\"] = model_type\n    print(f\"\
+          Trained {model_type} on {len(X_train)} rows\")\n\n"
+        image: python:3.11-slim
+        resources:
+          cpuLimit: 2.0
+          memoryLimit: 4.0
+          resourceCpuLimit: '2'
+          resourceMemoryLimit: 4G
+    exec-train-model-2:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.3.3'\
+          \ 'scikit-learn==1.5.2' 'joblib'  &&  python3 -m pip install --quiet --no-warn-script-location\
+          \ 'kfp==2.16.1' '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"\
+          3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_model(clean_data: Input[Dataset], model_type: str, seed:\
+          \ int, model: Output[Model]):\n    import joblib\n    import pandas as pd\n\
+          \    from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier\n\
+          \    from sklearn.linear_model import LogisticRegression\n    from sklearn.model_selection\
+          \ import train_test_split\n    from sklearn.pipeline import make_pipeline\n\
+          \    from sklearn.preprocessing import StandardScaler\n    df = pd.read_csv(clean_data.path)\n\
+          \    X, y = df.drop(columns=[\"Machine failure\"]), df[\"Machine failure\"\
+          ]\n    X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, stratify=y,\
+          \ random_state=seed)\n    estimators = {\n        \"logistic_regression\"\
+          : LogisticRegression(max_iter=1000, class_weight=\"balanced\", random_state=seed),\n\
+          \        \"random_forest\": RandomForestClassifier(n_estimators=300, class_weight=\"\
+          balanced_subsample\", random_state=seed),\n        \"gradient_boosting\"\
+          : HistGradientBoostingClassifier(max_iter=300, class_weight=\"balanced\"\
+          , random_state=seed),\n    }\n    pipeline = make_pipeline(StandardScaler(),\
+          \ estimators[model_type]).fit(X_train, y_train)\n    joblib.dump(pipeline,\
+          \ model.path)\n    model.metadata[\"model_type\"] = model_type\n    print(f\"\
+          Trained {model_type} on {len(X_train)} rows\")\n\n"
+        image: python:3.11-slim
+        resources:
+          cpuLimit: 2.0
+          memoryLimit: 4.0
+          resourceCpuLimit: '2'
+          resourceMemoryLimit: 4G
+    exec-train-model-3:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - train_model
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'pandas==2.3.3'\
+          \ 'scikit-learn==1.5.2' 'joblib'  &&  python3 -m pip install --quiet --no-warn-script-location\
+          \ 'kfp==2.16.1' '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"\
+          3.9\"' && \"$0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef train_model(clean_data: Input[Dataset], model_type: str, seed:\
+          \ int, model: Output[Model]):\n    import joblib\n    import pandas as pd\n\
+          \    from sklearn.ensemble import HistGradientBoostingClassifier, RandomForestClassifier\n\
+          \    from sklearn.linear_model import LogisticRegression\n    from sklearn.model_selection\
+          \ import train_test_split\n    from sklearn.pipeline import make_pipeline\n\
+          \    from sklearn.preprocessing import StandardScaler\n    df = pd.read_csv(clean_data.path)\n\
+          \    X, y = df.drop(columns=[\"Machine failure\"]), df[\"Machine failure\"\
+          ]\n    X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, stratify=y,\
+          \ random_state=seed)\n    estimators = {\n        \"logistic_regression\"\
+          : LogisticRegression(max_iter=1000, class_weight=\"balanced\", random_state=seed),\n\
+          \        \"random_forest\": RandomForestClassifier(n_estimators=300, class_weight=\"\
+          balanced_subsample\", random_state=seed),\n        \"gradient_boosting\"\
+          : HistGradientBoostingClassifier(max_iter=300, class_weight=\"balanced\"\
+          , random_state=seed),\n    }\n    pipeline = make_pipeline(StandardScaler(),\
+          \ estimators[model_type]).fit(X_train, y_train)\n    joblib.dump(pipeline,\
+          \ model.path)\n    model.metadata[\"model_type\"] = model_type\n    print(f\"\
+          Trained {model_type} on {len(X_train)} rows\")\n\n"
+        image: python:3.11-slim
+        resources:
+          cpuLimit: 2.0
+          memoryLimit: 4.0
+          resourceCpuLimit: '2'
+          resourceMemoryLimit: 4G
+pipelineInfo:
+  description: Collect, validate, train x3 in parallel, evaluate, gated deployment
+  name: ai4i-predictive-maintenance
+root:
+  dag:
+    tasks:
+      condition-1:
+        componentRef:
+          name: comp-condition-1
+        dependentTasks:
+        - evaluate-models
+        inputs:
+          artifacts:
+            pipelinechannel--evaluate-models-best_model:
+              taskOutputArtifact:
+                outputArtifactKey: best_model
+                producerTask: evaluate-models
+          parameters:
+            pipelinechannel--evaluate-models-best_f1:
+              taskOutputParameter:
+                outputParameterKey: best_f1
+                producerTask: evaluate-models
+            pipelinechannel--evaluate-models-best_model_type:
+              taskOutputParameter:
+                outputParameterKey: best_model_type
+                producerTask: evaluate-models
+            pipelinechannel--f1_threshold:
+              componentInputParameter: f1_threshold
+        taskInfo:
+          name: f1-quality-gate
+        triggerPolicy:
+          condition: inputs.parameter_values['pipelinechannel--evaluate-models-best_f1']
+            >= inputs.parameter_values['pipelinechannel--f1_threshold']
+      data-collection:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-data-collection
+        inputs:
+          parameters:
+            source_url:
+              componentInputParameter: source_url
+        retryPolicy:
+          backoffDuration: 0s
+          backoffFactor: 2.0
+          backoffMaxDuration: 3600s
+          maxRetryCount: 2
+        taskInfo:
+          name: data-collection
+      data-validation:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-data-validation
+        dependentTasks:
+        - data-collection
+        inputs:
+          artifacts:
+            raw_data:
+              taskOutputArtifact:
+                outputArtifactKey: raw_data
+                producerTask: data-collection
+        taskInfo:
+          name: data-validation
+      evaluate-models:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-evaluate-models
+        dependentTasks:
+        - data-validation
+        - train-model
+        - train-model-2
+        - train-model-3
+        inputs:
+          artifacts:
+            clean_data:
+              taskOutputArtifact:
+                outputArtifactKey: clean_data
+                producerTask: data-validation
+            gb_model:
+              taskOutputArtifact:
+                outputArtifactKey: model
+                producerTask: train-model-3
+            lr_model:
+              taskOutputArtifact:
+                outputArtifactKey: model
+                producerTask: train-model
+            rf_model:
+              taskOutputArtifact:
+                outputArtifactKey: model
+                producerTask: train-model-2
+          parameters:
+            seed:
+              componentInputParameter: seed
+        taskInfo:
+          name: evaluate-models
+      train-model:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-train-model
+        dependentTasks:
+        - data-validation
+        inputs:
+          artifacts:
+            clean_data:
+              taskOutputArtifact:
+                outputArtifactKey: clean_data
+                producerTask: data-validation
+          parameters:
+            model_type:
+              runtimeValue:
+                constant: logistic_regression
+            seed:
+              componentInputParameter: seed
+        taskInfo:
+          name: train-model
+      train-model-2:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-train-model-2
+        dependentTasks:
+        - data-validation
+        inputs:
+          artifacts:
+            clean_data:
+              taskOutputArtifact:
+                outputArtifactKey: clean_data
+                producerTask: data-validation
+          parameters:
+            model_type:
+              runtimeValue:
+                constant: random_forest
+            seed:
+              componentInputParameter: seed
+        taskInfo:
+          name: train-model-2
+      train-model-3:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-train-model-3
+        dependentTasks:
+        - data-validation
+        inputs:
+          artifacts:
+            clean_data:
+              taskOutputArtifact:
+                outputArtifactKey: clean_data
+                producerTask: data-validation
+          parameters:
+            model_type:
+              runtimeValue:
+                constant: gradient_boosting
+            seed:
+              componentInputParameter: seed
+        taskInfo:
+          name: train-model-3
+  inputDefinitions:
+    parameters:
+      f1_threshold:
+        defaultValue: 0.7
+        isOptional: true
+        parameterType: NUMBER_DOUBLE
+      seed:
+        defaultValue: 42.0
+        isOptional: true
+        parameterType: NUMBER_INTEGER
+      source_url:
+        defaultValue: https://archive.ics.uci.edu/static/public/601/ai4i+2020+predictive+maintenance+dataset.zip
+        isOptional: true
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.16.1

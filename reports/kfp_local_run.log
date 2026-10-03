@@ -1,0 +1,528 @@
+15:16:40.951 - INFO - Running pipeline: 'ai4i-predictive-maintenance'
+--------------------------------------------------------------------------------
+15:16:40.956 - INFO - Executing task 'data-collection'
+15:16:40.956 - INFO - Streamed logs:
+
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    
+    [notice] A new release of pip is available: 24.0 -> 26.2.1
+    [notice] To update, run: pip install --upgrade pip
+    [KFP Executor 2026-10-03 15:16:43,195 INFO]: Looking for component `data_collection` in --component_module_path `/tmp/tmp.ZfV2WBqaj2/ephemeral_component.py`
+    [KFP Executor 2026-10-03 15:16:43,195 INFO]: Loading KFP component "data_collection" from /tmp/tmp.ZfV2WBqaj2/ephemeral_component.py (directory "/tmp/tmp.ZfV2WBqaj2" and module name "ephemeral_component")
+    [KFP Executor 2026-10-03 15:16:43,196 INFO]: Got executor_input:
+    {
+        "inputs": {
+            "parameterValues": {
+                "source_url": "https://archive.ics.uci.edu/static/public/601/ai4i+2020+predictive+maintenance+dataset.zip"
+            }
+        },
+        "outputs": {
+            "artifacts": {
+                "raw_data": {
+                    "artifacts": [
+                        {
+                            "name": "raw_data",
+                            "type": {
+                                "schemaTitle": "system.Dataset",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-collection/raw_data",
+                            "metadata": {}
+                        }
+                    ]
+                }
+            },
+            "outputFile": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-collection/executor_output.json"
+        }
+    }
+    Collected 10000 rows and 14 columns
+    [KFP Executor 2026-10-03 15:16:48,403 INFO]: Wrote executor output file to /work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-collection/executor_output.json.
+    
+
+15:16:48.440 - INFO - Task 'data-collection' finished with status SUCCESS
+15:16:48.446 - INFO - Task 'data-collection' outputs:
+    raw_data: Dataset( name='raw_data',
+                       uri='/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-collection/raw_data',
+                       metadata={'columns': 14.0, 'rows': 10000.0} )
+--------------------------------------------------------------------------------
+15:16:48.447 - INFO - Executing task 'data-validation'
+15:16:48.447 - INFO - Streamed logs:
+
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    
+    [notice] A new release of pip is available: 24.0 -> 26.2.1
+    [notice] To update, run: pip install --upgrade pip
+    [KFP Executor 2026-10-03 15:16:49,979 INFO]: Looking for component `data_validation` in --component_module_path `/tmp/tmp.AngabPckAx/ephemeral_component.py`
+    [KFP Executor 2026-10-03 15:16:49,979 INFO]: Loading KFP component "data_validation" from /tmp/tmp.AngabPckAx/ephemeral_component.py (directory "/tmp/tmp.AngabPckAx" and module name "ephemeral_component")
+    [KFP Executor 2026-10-03 15:16:49,980 INFO]: Got executor_input:
+    {
+        "inputs": {
+            "artifacts": {
+                "raw_data": {
+                    "artifacts": [
+                        {
+                            "name": "raw_data",
+                            "type": {
+                                "schemaTitle": "system.Dataset",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-collection/raw_data",
+                            "metadata": {
+                                "columns": 14.0,
+                                "rows": 10000.0
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "outputs": {
+            "artifacts": {
+                "report": {
+                    "artifacts": [
+                        {
+                            "name": "report",
+                            "type": {
+                                "schemaTitle": "system.Metrics",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-validation/report",
+                            "metadata": {}
+                        }
+                    ]
+                },
+                "clean_data": {
+                    "artifacts": [
+                        {
+                            "name": "clean_data",
+                            "type": {
+                                "schemaTitle": "system.Dataset",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-validation/clean_data",
+                            "metadata": {}
+                        }
+                    ]
+                }
+            },
+            "outputFile": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-validation/executor_output.json"
+        }
+    }
+    All 6 checks passed, removed 27 contradictory rows
+    [KFP Executor 2026-10-03 15:16:50,358 INFO]: Wrote executor output file to /work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-validation/executor_output.json.
+    
+
+15:16:50.393 - INFO - Task 'data-validation' finished with status SUCCESS
+15:16:50.398 - INFO - Task 'data-validation' outputs:
+    report: Metrics( name='report',
+                     uri='/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-validation/report',
+                     metadata={'binary_target': 1.0, 'positive_speed': 1.0, 'no_missing_values': 1.0, 'enough_rows': 1.0, 'unique_ids': 1.0, 'valid_product_types': 1.0} )
+    clean_data: Dataset( name='clean_data',
+                         uri='/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-validation/clean_data',
+                         metadata={'contradictory_rows_removed': 27.0, 'rows': 9973.0} )
+--------------------------------------------------------------------------------
+15:16:50.399 - INFO - Executing task 'train-model-2'
+15:16:50.399 - INFO - Streamed logs:
+
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    
+    [notice] A new release of pip is available: 24.0 -> 26.2.1
+    [notice] To update, run: pip install --upgrade pip
+    [KFP Executor 2026-10-03 15:16:51,978 INFO]: Looking for component `train_model` in --component_module_path `/tmp/tmp.E8jwW2gUjR/ephemeral_component.py`
+    [KFP Executor 2026-10-03 15:16:51,978 INFO]: Loading KFP component "train_model" from /tmp/tmp.E8jwW2gUjR/ephemeral_component.py (directory "/tmp/tmp.E8jwW2gUjR" and module name "ephemeral_component")
+    [KFP Executor 2026-10-03 15:16:51,979 INFO]: Got executor_input:
+    {
+        "inputs": {
+            "artifacts": {
+                "clean_data": {
+                    "artifacts": [
+                        {
+                            "name": "clean_data",
+                            "type": {
+                                "schemaTitle": "system.Dataset",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-validation/clean_data",
+                            "metadata": {
+                                "contradictory_rows_removed": 27.0,
+                                "rows": 9973.0
+                            }
+                        }
+                    ]
+                }
+            },
+            "parameterValues": {
+                "seed": 42,
+                "model_type": "random_forest"
+            }
+        },
+        "outputs": {
+            "artifacts": {
+                "model": {
+                    "artifacts": [
+                        {
+                            "name": "model",
+                            "type": {
+                                "schemaTitle": "system.Model",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model-2/model",
+                            "metadata": {}
+                        }
+                    ]
+                }
+            },
+            "outputFile": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model-2/executor_output.json"
+        }
+    }
+    Trained random_forest on 7978 rows
+    [KFP Executor 2026-10-03 15:16:54,977 INFO]: Wrote executor output file to /work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model-2/executor_output.json.
+    
+
+15:16:55.070 - INFO - Task 'train-model-2' finished with status SUCCESS
+15:16:55.076 - INFO - Task 'train-model-2' outputs:
+    model: Model( name='model',
+                  uri='/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model-2/model',
+                  metadata={'model_type': 'random_forest'} )
+--------------------------------------------------------------------------------
+15:16:55.076 - INFO - Executing task 'train-model'
+15:16:55.076 - INFO - Streamed logs:
+
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    
+    [notice] A new release of pip is available: 24.0 -> 26.2.1
+    [notice] To update, run: pip install --upgrade pip
+    [KFP Executor 2026-10-03 15:16:56,681 INFO]: Looking for component `train_model` in --component_module_path `/tmp/tmp.zyaD0agtRh/ephemeral_component.py`
+    [KFP Executor 2026-10-03 15:16:56,681 INFO]: Loading KFP component "train_model" from /tmp/tmp.zyaD0agtRh/ephemeral_component.py (directory "/tmp/tmp.zyaD0agtRh" and module name "ephemeral_component")
+    [KFP Executor 2026-10-03 15:16:56,682 INFO]: Got executor_input:
+    {
+        "inputs": {
+            "artifacts": {
+                "clean_data": {
+                    "artifacts": [
+                        {
+                            "name": "clean_data",
+                            "type": {
+                                "schemaTitle": "system.Dataset",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-validation/clean_data",
+                            "metadata": {
+                                "contradictory_rows_removed": 27.0,
+                                "rows": 9973.0
+                            }
+                        }
+                    ]
+                }
+            },
+            "parameterValues": {
+                "seed": 42,
+                "model_type": "logistic_regression"
+            }
+        },
+        "outputs": {
+            "artifacts": {
+                "model": {
+                    "artifacts": [
+                        {
+                            "name": "model",
+                            "type": {
+                                "schemaTitle": "system.Model",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model/model",
+                            "metadata": {}
+                        }
+                    ]
+                }
+            },
+            "outputFile": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model/executor_output.json"
+        }
+    }
+    Trained logistic_regression on 7978 rows
+    [KFP Executor 2026-10-03 15:16:57,679 INFO]: Wrote executor output file to /work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model/executor_output.json.
+    
+
+15:16:57.788 - INFO - Task 'train-model' finished with status SUCCESS
+15:16:57.800 - INFO - Task 'train-model' outputs:
+    model: Model( name='model',
+                  uri='/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model/model',
+                  metadata={'model_type': 'logistic_regression'} )
+--------------------------------------------------------------------------------
+15:16:57.801 - INFO - Executing task 'train-model-3'
+15:16:57.801 - INFO - Streamed logs:
+
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    
+    [notice] A new release of pip is available: 24.0 -> 26.2.1
+    [notice] To update, run: pip install --upgrade pip
+    [KFP Executor 2026-10-03 15:16:59,334 INFO]: Looking for component `train_model` in --component_module_path `/tmp/tmp.eRFLdjokQI/ephemeral_component.py`
+    [KFP Executor 2026-10-03 15:16:59,335 INFO]: Loading KFP component "train_model" from /tmp/tmp.eRFLdjokQI/ephemeral_component.py (directory "/tmp/tmp.eRFLdjokQI" and module name "ephemeral_component")
+    [KFP Executor 2026-10-03 15:16:59,335 INFO]: Got executor_input:
+    {
+        "inputs": {
+            "artifacts": {
+                "clean_data": {
+                    "artifacts": [
+                        {
+                            "name": "clean_data",
+                            "type": {
+                                "schemaTitle": "system.Dataset",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-validation/clean_data",
+                            "metadata": {
+                                "contradictory_rows_removed": 27.0,
+                                "rows": 9973.0
+                            }
+                        }
+                    ]
+                }
+            },
+            "parameterValues": {
+                "seed": 42,
+                "model_type": "gradient_boosting"
+            }
+        },
+        "outputs": {
+            "artifacts": {
+                "model": {
+                    "artifacts": [
+                        {
+                            "name": "model",
+                            "type": {
+                                "schemaTitle": "system.Model",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model-3/model",
+                            "metadata": {}
+                        }
+                    ]
+                }
+            },
+            "outputFile": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model-3/executor_output.json"
+        }
+    }
+    Trained gradient_boosting on 7978 rows
+    [KFP Executor 2026-10-03 15:17:00,904 INFO]: Wrote executor output file to /work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model-3/executor_output.json.
+    
+
+15:17:00.995 - INFO - Task 'train-model-3' finished with status SUCCESS
+15:17:01.001 - INFO - Task 'train-model-3' outputs:
+    model: Model( name='model',
+                  uri='/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model-3/model',
+                  metadata={'model_type': 'gradient_boosting'} )
+--------------------------------------------------------------------------------
+15:17:01.002 - INFO - Executing task 'evaluate-models'
+15:17:01.002 - INFO - Streamed logs:
+
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    
+    [notice] A new release of pip is available: 24.0 -> 26.2.1
+    [notice] To update, run: pip install --upgrade pip
+    [KFP Executor 2026-10-03 15:17:02,791 INFO]: Looking for component `evaluate_models` in --component_module_path `/tmp/tmp.OCtpmjwavM/ephemeral_component.py`
+    [KFP Executor 2026-10-03 15:17:02,791 INFO]: Loading KFP component "evaluate_models" from /tmp/tmp.OCtpmjwavM/ephemeral_component.py (directory "/tmp/tmp.OCtpmjwavM" and module name "ephemeral_component")
+    [KFP Executor 2026-10-03 15:17:02,792 INFO]: Got executor_input:
+    {
+        "inputs": {
+            "artifacts": {
+                "rf_model": {
+                    "artifacts": [
+                        {
+                            "name": "model",
+                            "type": {
+                                "schemaTitle": "system.Model",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model-2/model",
+                            "metadata": {
+                                "model_type": "random_forest"
+                            }
+                        }
+                    ]
+                },
+                "gb_model": {
+                    "artifacts": [
+                        {
+                            "name": "model",
+                            "type": {
+                                "schemaTitle": "system.Model",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model-3/model",
+                            "metadata": {
+                                "model_type": "gradient_boosting"
+                            }
+                        }
+                    ]
+                },
+                "clean_data": {
+                    "artifacts": [
+                        {
+                            "name": "clean_data",
+                            "type": {
+                                "schemaTitle": "system.Dataset",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/data-validation/clean_data",
+                            "metadata": {
+                                "contradictory_rows_removed": 27.0,
+                                "rows": 9973.0
+                            }
+                        }
+                    ]
+                },
+                "lr_model": {
+                    "artifacts": [
+                        {
+                            "name": "model",
+                            "type": {
+                                "schemaTitle": "system.Model",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/train-model/model",
+                            "metadata": {
+                                "model_type": "logistic_regression"
+                            }
+                        }
+                    ]
+                }
+            },
+            "parameterValues": {
+                "seed": 42
+            }
+        },
+        "outputs": {
+            "parameters": {
+                "best_f1": {
+                    "outputFile": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/evaluate-models/best_f1"
+                },
+                "best_model_type": {
+                    "outputFile": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/evaluate-models/best_model_type"
+                }
+            },
+            "artifacts": {
+                "best_model": {
+                    "artifacts": [
+                        {
+                            "name": "best_model",
+                            "type": {
+                                "schemaTitle": "system.Model",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/evaluate-models/best_model",
+                            "metadata": {}
+                        }
+                    ]
+                },
+                "metrics": {
+                    "artifacts": [
+                        {
+                            "name": "metrics",
+                            "type": {
+                                "schemaTitle": "system.Metrics",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/evaluate-models/metrics",
+                            "metadata": {}
+                        }
+                    ]
+                }
+            },
+            "outputFile": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/evaluate-models/executor_output.json"
+        }
+    }
+    Best model: gradient_boosting with F1 = 0.9048
+    [KFP Executor 2026-10-03 15:17:04,228 INFO]: Wrote executor output file to /work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/evaluate-models/executor_output.json.
+    
+
+15:17:04.341 - INFO - Task 'evaluate-models' finished with status SUCCESS
+15:17:04.358 - INFO - Task 'evaluate-models' outputs:
+    best_f1: 0.9047619047619048
+    best_model_type: 'gradient_boosting'
+    best_model: Model( name='best_model',
+                       uri='/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/evaluate-models/best_model',
+                       metadata={'f1_score': 0.9048, 'model_type': 'gradient_boosting'} )
+    metrics: Metrics( name='metrics',
+                      uri='/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/evaluate-models/metrics',
+                      metadata={'logistic_regression_precision': 0.169, 'gradient_boosting_f1': 0.9048, 'random_forest_precision': 0.9344, 'gradient_boosting_recall': 0.8636, 'random_forest_f1': 0.8976, 'gradient_boosting_precision': 0.95, 'random_forest_recall': 0.8636, 'logistic_regression_f1': 0.285, 'logistic_regression_recall': 0.9091} )
+--------------------------------------------------------------------------------
+15:17:04.358 - INFO - Executing task 'deployment'
+15:17:04.358 - INFO - Streamed logs:
+
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+    
+    [notice] A new release of pip is available: 24.0 -> 26.2.1
+    [notice] To update, run: pip install --upgrade pip
+    [KFP Executor 2026-10-03 15:17:06,367 INFO]: Looking for component `deployment` in --component_module_path `/tmp/tmp.1ZXNSWDOPy/ephemeral_component.py`
+    [KFP Executor 2026-10-03 15:17:06,367 INFO]: Loading KFP component "deployment" from /tmp/tmp.1ZXNSWDOPy/ephemeral_component.py (directory "/tmp/tmp.1ZXNSWDOPy" and module name "ephemeral_component")
+    [KFP Executor 2026-10-03 15:17:06,368 INFO]: Got executor_input:
+    {
+        "inputs": {
+            "artifacts": {
+                "best_model": {
+                    "artifacts": [
+                        {
+                            "name": "best_model",
+                            "type": {
+                                "schemaTitle": "system.Model",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/evaluate-models/best_model",
+                            "metadata": {
+                                "f1_score": 0.9048,
+                                "model_type": "gradient_boosting"
+                            }
+                        }
+                    ]
+                }
+            },
+            "parameterValues": {
+                "f1": 0.9047619047619048,
+                "f1_threshold": 0.7,
+                "best_model_type": "gradient_boosting"
+            }
+        },
+        "outputs": {
+            "parameters": {
+                "Output": {
+                    "outputFile": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/deployment/Output"
+                }
+            },
+            "artifacts": {
+                "packaged_model": {
+                    "artifacts": [
+                        {
+                            "name": "packaged_model",
+                            "type": {
+                                "schemaTitle": "system.Model",
+                                "schemaVersion": "0.0.1"
+                            },
+                            "uri": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/deployment/packaged_model",
+                            "metadata": {}
+                        }
+                    ]
+                }
+            },
+            "outputFile": "/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/deployment/executor_output.json"
+        }
+    }
+    Quality gate passed (F1 0.9048 >= 0.7): gradient_boosting packaged for serving
+    [KFP Executor 2026-10-03 15:17:06,410 INFO]: Wrote executor output file to /work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/deployment/executor_output.json.
+    
+
+15:17:06.416 - INFO - Task 'deployment' finished with status SUCCESS
+15:17:06.422 - INFO - Task 'deployment' outputs:
+    Output: 'READY_FOR_SERVING'
+    packaged_model: Model( name='packaged_model',
+                           uri='/work/kfp_local_outputs/ai4i-predictive-maintenance-2026-10-03-15-16-40-951551/deployment/packaged_model',
+                           metadata={'model_name': 'ai4i-failure-classifier', 'status': 'READY_FOR_SERVING', 'f1_score': 0.9048, 'model_type': 'gradient_boosting'} )
+--------------------------------------------------------------------------------
+15:17:06.422 - INFO - Pipeline 'ai4i-predictive-maintenance' finished with status SUCCESS
