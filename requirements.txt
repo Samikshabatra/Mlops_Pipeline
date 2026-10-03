@@ -1,0 +1,15 @@
+pandas==2.3.3
+numpy==2.4.6
+scikit-learn==1.5.2
+scipy==1.17.1
+matplotlib==3.11.0
+seaborn==0.13.2
+pyyaml
+mlflow==3.16.1
+dvc==3.67.1
+kfp==2.16.1
+feast==0.66.0
+pyarrow==25.0.1
+jupyter
+ipykernel
+nbconvert

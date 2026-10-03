@@ -1,0 +1,15 @@
+.venv/
+scratch/
+__pycache__/
+.ipynb_checkpoints/
+mlflow.db
+mlruns/
+mlartifacts/
+dvc_storage/
+pipeline_runs/
+deployment/
+feature_repo/data/
+*.joblib
+*.pkl
+.env
+kfp_local_outputs/
